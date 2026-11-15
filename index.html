@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Freelance Hourly Rate Calculator: What Should You Charge?</title>
+<meta name="description" content="Free freelance rate calculator. Enter the take-home pay you want, your expenses, taxes and time off, and get the hourly, day and project rate you need to charge.">
+<meta property="og:title" content="Freelance Hourly Rate Calculator">
+<meta property="og:description" content="Work out the hourly, day and project rate you need to charge to hit your take-home pay.">
+<meta property="og:type" content="website">
+<script>
+/* ================== SETTINGS: EDIT THESE ================== */
+const SETTINGS = {
+  // Paste your payment or tip link between the quotes (Stripe Payment Link,
+  // Ko-fi, Buy Me a Coffee, Gumroad...). While it is empty, the support
+  // section stays hidden, so the page never shows a broken button.
+  PAYMENT_LINK: "",
+  // Optional: a link to something you sell (a guide, a template pack).
+  // While it is empty, the upgrade card stays hidden.
+  UPGRADE_LINK: "",
+  UPGRADE_TITLE: "Rate Negotiation Kit",
+  UPGRADE_TEXT: "Email scripts for quoting, raising rates and handling pushback.",
+  UPGRADE_PRICE: "$9"
+};
+/* ========================================================== */
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"How do I calculate my freelance hourly rate?","acceptedAnswer":{"@type":"Answer","text":"Add the take-home pay you want to the tax you will owe on it and your yearly business expenses. Divide that total by the hours you can actually bill in a year, after time off and unpaid work such as admin and finding clients."}},
+{"@type":"Question","name":"Why is a freelance rate higher than an employee's hourly wage?","acceptedAnswer":{"@type":"Answer","text":"A freelancer pays for their own taxes, equipment, software, insurance, holidays and sick days, and cannot bill every working hour. A rate that only matches a salary divided by 2,080 hours leaves you earning far less than that salary."}},
+{"@type":"Question","name":"How many hours a year can a freelancer bill?","acceptedAnswer":{"@type":"Answer","text":"Many full-time freelancers bill between 1,000 and 1,400 hours a year. A common assumption is that 60 to 70 percent of working time is billable; the rest goes to admin, sales and learning."}}
+]}
+</script>
+<style>
+:root{
+  --bg:#f6f4ef;--card:#fffdf8;--ink:#1d2a2a;--muted:#5d6b69;--line:#ddd8cc;
+  --accent:#0f6b5c;--accent-ink:#fff;--soft:#e4efe9;--warn:#8a5a00;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#121716;--card:#1a2120;--ink:#e9efec;--muted:#9fb0ab;--line:#2c3836;
+    --accent:#4fc3a8;--accent-ink:#06211c;--soft:#1f2f2b;--warn:#e0b25a}
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:28px 16px 56px}
+h1{font:700 clamp(1.7rem,4.5vw,2.5rem)/1.15 Georgia,"Times New Roman",serif;margin:0 0 10px;text-wrap:balance}
+h2{font:700 1.3rem/1.25 Georgia,serif;margin:36px 0 10px}
+h3{font-size:1rem;margin:18px 0 4px}
+p{margin:0 0 12px}
+.lede{color:var(--muted);max-width:62ch;margin-bottom:24px}
+.grid{display:grid;gap:18px;grid-template-columns:1fr}
+@media (min-width:780px){.grid{grid-template-columns:1.05fr .95fr;align-items:start}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+label{display:block;font-weight:600;font-size:.92rem;margin:14px 0 5px}
+label:first-child{margin-top:0}
+.hint{display:block;font-weight:400;color:var(--muted);font-size:.82rem}
+.field{display:flex;align-items:center;border:1px solid var(--line);border-radius:9px;background:var(--bg);overflow:hidden}
+.field:focus-within{outline:2px solid var(--accent);outline-offset:1px}
+.field span{padding:0 10px;color:var(--muted);font-variant-numeric:tabular-nums}
+input,select{font:inherit;color:inherit;background:transparent;border:0;padding:10px;width:100%;min-width:0}
+input:focus,select:focus{outline:none}
+select{border:1px solid var(--line);border-radius:9px;background:var(--bg)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.result{position:sticky;top:14px}
+.big{font:700 clamp(2.4rem,8vw,3.4rem)/1 Georgia,serif;color:var(--accent);font-variant-numeric:tabular-nums}
+.sub{color:var(--muted);font-size:.9rem;margin-bottom:14px}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+td{padding:8px 0;border-top:1px solid var(--line)}
+td:last-child{text-align:right;font-weight:600}
+.note{background:var(--soft);border-radius:9px;padding:10px 12px;font-size:.88rem;margin-top:14px}
+.warn{color:var(--warn)}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+button,.btn{font:600 .92rem system-ui,sans-serif;border-radius:9px;padding:10px 14px;cursor:pointer;
+  border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;display:inline-block}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+button:hover,.btn:hover{filter:brightness(.96)}
+.support{margin-top:18px;display:none}
+.support.on{display:block}
+.faq p{max-width:68ch;color:var(--muted)}
+footer{margin-top:40px;color:var(--muted);font-size:.82rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Freelance Hourly Rate Calculator</h1>
+  <p class="lede">Start from the pay you want to take home. The calculator adds your taxes and expenses, removes the hours you can't bill, and shows the rate you need to charge.</p>
+
+  <div class="grid">
+    <form class="card" id="f" autocomplete="off">
+      <label for="cur">Currency</label>
+      <select id="cur">
+        <option value="$">$ Dollar</option><option value="€">€ Euro</option>
+        <option value="£">£ Pound</option><option value="₹">₹ Rupee</option>
+        <option value="¥">¥ Yen / Yuan</option><option value="">Other (no symbol)</option>
+      </select>
+
+      <label for="pay">Take-home pay you want per year <span class="hint">After tax, the amount that reaches your bank account.</span></label>
+      <div class="field"><span class="c">$</span><input id="pay" type="number" inputmode="decimal" min="0" value="60000"></div>
+
+      <label for="exp">Business expenses per year <span class="hint">Software, equipment, insurance, accountant, workspace.</span></label>
+      <div class="field"><span class="c">$</span><input id="exp" type="number" inputmode="decimal" min="0" value="6000"></div>
+
+      <label for="tax">Tax on your profit <span class="hint">Income tax plus self-employment or social contributions.</span></label>
+      <div class="field"><input id="tax" type="number" inputmode="decimal" min="0" max="90" value="25"><span>%</span></div>
+
+      <div class="two">
+        <div><label for="hrs">Hours worked per week</label>
+          <div class="field"><input id="hrs" type="number" inputmode="decimal" min="1" max="100" value="40"></div></div>
+        <div><label for="off">Weeks off per year</label>
+          <div class="field"><input id="off" type="number" inputmode="decimal" min="0" max="51" value="6"></div></div>
+      </div>
+
+      <label for="bill">Share of your time that is billable <span class="hint">The rest goes to admin, sales and learning. 60 to 70% is typical.</span></label>
+      <div class="field"><input id="bill" type="number" inputmode="decimal" min="1" max="100" value="65"><span>%</span></div>
+
+      <label for="buf">Safety margin <span class="hint">Cover for quiet months and late payers.</span></label>
+      <div class="field"><input id="buf" type="number" inputmode="decimal" min="0" max="100" value="10"><span>%</span></div>
+    </form>
+
+    <div class="result">
+      <div class="card" aria-live="polite">
+        <div class="sub">You need to charge at least</div>
+        <div class="big" id="rate">–</div>
+        <div class="sub">per billable hour</div>
+        <table>
+          <tr><td>Day rate (8 billable hours)</td><td id="day">–</td></tr>
+          <tr><td>Revenue needed per year</td><td id="rev">–</td></tr>
+          <tr><td>Revenue needed per month</td><td id="mon">–</td></tr>
+          <tr><td>Billable hours per year</td><td id="bh">–</td></tr>
+          <tr><td>Tax set aside per year</td><td id="tx">–</td></tr>
+        </table>
+        <div class="note" id="note"></div>
+        <div class="row">
+          <button type="button" id="copy">Copy summary</button>
+          <button type="button" id="share">Copy link to these numbers</button>
+        </div>
+      </div>
+
+      <div class="card support" id="upgrade">
+        <h3 id="upTitle" style="margin-top:0"></h3>
+        <p id="upText" class="sub"></p>
+        <a class="btn primary" id="upLink" target="_blank" rel="noopener"></a>
+      </div>
+
+      <div class="card support" id="support">
+        <h3 style="margin-top:0">Did this help you price a job?</h3>
+        <p class="sub">This calculator is free and has no ads. If it earned you a better rate, you can support it.</p>
+        <a class="btn primary" id="payLink" target="_blank" rel="noopener">Support this tool</a>
+      </div>
+    </div>
+  </div>
+
+  <section class="faq">
+    <h2>How the rate is calculated</h2>
+    <p>Profit before tax = take-home pay ÷ (1 − tax rate). Revenue needed = profit before tax + business expenses, plus your safety margin. Billable hours = (52 − weeks off) × hours per week × billable share. Your hourly rate is revenue needed ÷ billable hours.</p>
+
+    <h2>Common questions</h2>
+    <h3>How do I calculate my freelance hourly rate?</h3>
+    <p>Add the take-home pay you want to the tax you will owe on it and your yearly business expenses. Divide that total by the hours you can actually bill in a year, after time off and unpaid work such as admin and finding clients.</p>
+    <h3>Why is a freelance rate higher than an employee's hourly wage?</h3>
+    <p>A freelancer pays for their own taxes, equipment, software, insurance, holidays and sick days, and cannot bill every working hour. A rate that only matches a salary divided by 2,080 hours leaves you earning far less than that salary.</p>
+    <h3>How many hours a year can a freelancer bill?</h3>
+    <p>Many full-time freelancers bill between 1,000 and 1,400 hours a year. A common assumption is that 60 to 70 percent of working time is billable; the rest goes to admin, sales and learning.</p>
+    <h3>Should I quote hourly or per project?</h3>
+    <p>Use the hourly figure as your floor. For a project quote, estimate the hours, multiply by this rate, and add room for revisions and communication. Clients often prefer a fixed price, and you keep the gain when you work faster.</p>
+  </section>
+
+  <footer>Estimates only, not tax or financial advice. Tax rules differ by country; check your own rate with an accountant.</footer>
+</div>
+
+<script>
+const ids=["pay","exp","tax","hrs","off","bill","buf"];
+const $=id=>document.getElementById(id);
+const num=id=>{const v=parseFloat($(id).value);return isFinite(v)?v:0};
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+let last="";
+
+function money(v,dp){
+  const c=$("cur").value;
+  return c+v.toLocaleString(undefined,{minimumFractionDigits:dp,maximumFractionDigits:dp});
+}
+function calc(){
+  const c=$("cur").value;
+  document.querySelectorAll(".c").forEach(e=>{e.textContent=c;e.style.display=c?"":"none"});
+  const pay=Math.max(0,num("pay")), exp=Math.max(0,num("exp"));
+  const tax=clamp(num("tax"),0,90)/100, hrs=clamp(num("hrs"),0,100);
+  const off=clamp(num("off"),0,52), bill=clamp(num("bill"),0,100)/100, buf=clamp(num("buf"),0,100)/100;
+  const profit=pay/(1-tax);
+  const revenue=(profit+exp)*(1+buf);
+  const hours=(52-off)*hrs*bill;
+  const note=$("note");
+  if(hours<=0){
+    ["rate","day","rev","mon","bh","tx"].forEach(i=>$(i).textContent="–");
+    note.innerHTML='<span class="warn">Enter working hours, weeks and a billable share above zero.</span>';
+    last="";return;
+  }
+  const rate=revenue/hours;
+  $("rate").textContent=money(rate,rate<100?2:0);
+  $("day").textContent=money(rate*8,0);
+  $("rev").textContent=money(revenue,0);
+  $("mon").textContent=money(revenue/12,0);
+  $("bh").textContent=Math.round(hours).toLocaleString();
+  $("tx").textContent=money(profit-pay,0);
+  const naive=pay/2080;
+  note.textContent="A salary of "+money(pay,0)+" spread over a 2,080-hour employee year is "+money(naive,2)+
+    " an hour. To take home the same amount as a freelancer you need about "+(rate/naive).toFixed(1)+" times that.";
+  last="My freelance rate: "+money(rate,rate<100?2:0)+"/hour ("+money(rate*8,0)+"/day). "+
+    "Needs "+money(revenue,0)+" revenue a year over "+Math.round(hours).toLocaleString()+" billable hours.";
+}
+function stateToHash(){
+  const p=new URLSearchParams();
+  ids.forEach(i=>p.set(i,$(i).value)); p.set("cur",$("cur").value);
+  return "#"+p.toString();
+}
+function hashToState(){
+  if(location.hash.length<2)return;
+  const p=new URLSearchParams(location.hash.slice(1));
+  ids.forEach(i=>{const v=p.get(i);if(v!==null&&isFinite(parseFloat(v)))$(i).value=parseFloat(v)});
+  const c=p.get("cur");
+  if(c!==null&&[...$("cur").options].some(o=>o.value===c))$("cur").value=c;
+}
+async function copy(text,btn){
+  const old=btn.textContent;
+  try{await navigator.clipboard.writeText(text);btn.textContent="Copied";}
+  catch(e){prompt("Copy this:",text);}
+  setTimeout(()=>btn.textContent=old,1400);
+}
+$("f").addEventListener("input",calc);
+$("copy").addEventListener("click",e=>{if(last)copy(last+" Calculated at "+location.origin+location.pathname,e.target)});
+$("share").addEventListener("click",e=>copy(location.origin+location.pathname+stateToHash(),e.target));
+
+const okUrl=u=>/^https:\/\//i.test((u||"").trim());
+if(okUrl(SETTINGS.PAYMENT_LINK)){ $("payLink").href=SETTINGS.PAYMENT_LINK.trim(); $("support").classList.add("on"); }
+if(okUrl(SETTINGS.UPGRADE_LINK)){
+  $("upTitle").textContent=SETTINGS.UPGRADE_TITLE; $("upText").textContent=SETTINGS.UPGRADE_TEXT;
+  $("upLink").textContent="Get it for "+SETTINGS.UPGRADE_PRICE; $("upLink").href=SETTINGS.UPGRADE_LINK.trim();
+  $("upgrade").classList.add("on");
+}
+hashToState(); calc();
+</script>
+</body>
+</html>
